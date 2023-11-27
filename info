@@ -1,0 +1,49 @@
+# "docker run --name jenkins --rm -d -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD='P@ssword2#J&N1ks' --network minikube alexsimple/jenkins_jcasc:v5"
+#"minikube start --base-image "gcr.io/k8s-minikube/kicbase:v0.0.32""
+#"minikube start --base-image --memory 4096 "gcr.io/k8s-minikube/kicbase:v0.0.42""
+#"docker pull gcr.io/k8s-minikube/kicbase:v0.0.42" - latest image
+#"""$ kubectl cluster-info
+#   Kubernetes control plane is running at https://192.168.49.2:8443
+#"""
+ minikube docker-env
+
+ export DOCKER_TLS_VERIFY="1"
+ export DOCKER_HOST="tcp://192.168.49.2:2376"
+ export DOCKER_CERT_PATH="/home/mrtux/.minikube/certs"
+ export MINIKUBE_ACTIVE_DOCKERD="minikube"
+
+ # To point your shell to minikube's docker-daemon, run:
+
+eval $(minikube -p minikube docker-env)
+kubectl create namespace monitoring-stack
+kubectl apply -f elasticsearch.yaml
+kubectl apply -f grafana.yaml
+kubectl apply -f nginx.yaml
+kubectl apply -f fluentd.yaml
+kubectl apply -f prometheus.yaml
+kubectl get pods -n monitoring-stack
+minikube service grafana -n monitoring-stack
+minikube service prometheus -n monitoring-stack
+
+
+kubectl get po --show-labels -l release=0
+kubectl get po --show-labels -l specific=label
+
+
+ kubectl apply -f prometheus-config.yaml
+minikube logs --file=logs.txt
+
+kubectl rollout history deploy webapp
+Return infor of version
+
+kubectl rollout undo deploy webapp --to-version=2
+# Used only in emergency. Quicly fixing the Deployment file won't change
+# which mean you will have a pod running in a different version than your deployment file
+
+
+## To fix empty bash for small container like alpine
+
+winpty - https://github.com/rprichard/winpty/releases
+
+winpty
+kubectl exec -it grafana-deployment-cbb854fd-8gjk4 bash

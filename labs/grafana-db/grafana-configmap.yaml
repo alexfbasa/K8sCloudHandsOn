@@ -1,0 +1,14 @@
+# grafana-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+data:
+  grafana.ini: |
+    [database]
+    type = postgres
+    host = postgres-service
+    name = grafana
+    user = admin
+    password = admin-password
+    ssl_mode = disable

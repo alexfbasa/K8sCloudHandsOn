@@ -1,0 +1,125 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          env:
+            - name: POSTGRES_DB
+#              value: grafana_zabbix
+              value: grafana_db
+            - name: POSTGRES_USER
+              value: grafana_user
+            - name: POSTGRES_PASSWORD
+              value: grafana_db_pass
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+#---
+#apiVersion: apps/v1
+#kind: Deployment
+#metadata:
+#  name: zabbix-deployment
+#spec:
+#  replicas: 1
+#  selector:
+#    matchLabels:
+#      app: zabbix-server
+#  template:
+#    metadata:
+#      labels:
+#        app: zabbix-server
+#    spec:
+#      containers:
+#        - name: zabbix-server
+#          image: zabbix/zabbix-server-pgsql:latest
+#          env:
+#            - name: DB_SERVER_HOST
+#              value: postgres-service
+#            - name: DB_SERVER_PORT
+#              value: "5432"
+#            - name: DB_SERVER_DBNAME
+#              value: grafana_zabbix
+#            - name: DB_SERVER_USER
+#              value: your_postgres_user
+#            - name: DB_SERVER_PASSWORD
+#              value: your_postgres_password
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: zabbix-service
+#spec:
+#  selector:
+#    app: zabbix-server
+#  ports:
+#    - protocol: TCP
+#      port: 10051
+#      targetPort: 10051
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:latest
+          env:
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: admin
+            - name: GF_DATABASE_TYPE
+              value: postgres
+            - name: GF_DATABASE_HOST
+              value: postgres-service
+            - name: GF_DATABASE_PORT
+              value: "5432"
+            - name: GF_DATABASE_NAME
+              value: grafana_db
+            - name: GF_DATABASE_USER
+              value: grafana_user
+            - name: GF_DATABASE_PASSWORD
+              value: grafana_db_pass
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-service
+spec:
+  selector:
+    app: grafana
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: NodePort
